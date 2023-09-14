@@ -9,14 +9,12 @@ class Ball {
      *
      * centre: A p5 vector representing the ball's centre
      * radius: The ball's radius
-     * colour: The ball's surface colour
+     * material: The ball's material, which should be from materials.js
      */
-    constructor(centre, radius, colour) {
+    constructor(centre, radius, material) {
         this.centre = centre;
         this.radius = radius;
-        this.colour = colour;
-
-        // TODO: add all the coefficients and stuff when doing shading
+        this.material = material;
     }
 
     // Intersect this ball with the given ray and return if intersection exists, the parameter of intersection, and surface normal
