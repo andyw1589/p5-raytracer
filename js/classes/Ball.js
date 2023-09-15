@@ -13,7 +13,7 @@ class Ball {
      */
     constructor(centre, radius, material) {
         this.centre = centre;
-        this.radius = radius;
+        this.radius = Math.abs(radius);
         this.material = material;
     }
 

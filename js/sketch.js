@@ -1,41 +1,46 @@
 const CANVAS_SIZE = 400;
 
+// Due to the way p5 loads, can't call createVector when the script loads
+// Lazily evaluate instead
+// Return the ka and kd coefficient (in this case they are equal) of the given colour
+function getColour(colourName) {
+    let colours = {
+        "red": createVector(1, 0, 0),
+        "orange": createVector(1, 0.5, 0),
+        "yellow": createVector(1, 1, 0),
+        "green": createVector(0, 1, 0),
+        "blue": createVector(0, 0, 1),
+        "purple": createVector(1, 0, 1),
+        "white": createVector(0.8, 0.8, 0.8),
+        "black": createVector(0.1, 0.1, 0.1)
+    };
+    return colours[colourName];
+}
+
+// Return the ks, km, and phong_exponent of given material
+function getMaterial(materialName) {
+    let materials = {
+        "plastic": {
+            "ks": createVector(0.8, 0.8, 0.8),
+            "km": createVector(0.05, 0.05, 0.05),
+            "phong_exponent": 40
+        },
+        "metal": {
+            "ks": createVector(0.8, 0.8, 0.8),
+            "km": createVector(0.95, 0.95, 0.95),
+            "phong_exponent": 2500
+        },
+        "matte": {
+            "ks": createVector(0.06, 0.06, 0.06),
+            "km": createVector(0.01, 0.01, 0.01),
+            "phong_exponent": 30
+        }
+    };
+    return materials[materialName];
+}
+
 // Render the darn thing using raycasting
 function render() {
-    // a bunch of structs representing different materials
-    // have to put them here because of the way p5 works or something
-    const RED_PLASTIC = {
-        "ka": createVector(1, 0, 0.2),
-        "kd": createVector(1.0, 0.1, 0.2),
-        "ks": createVector(0.8, 0.8, 0.8),
-        "km": createVector(0.05, 0.05, 0.05),
-        "phong_exponent": 50
-    };
-
-    const BLUE_MIRROR = {
-        "ka": createVector(0.0, 0.0, 0.5),
-        "kd": createVector(0.2, 0.2, 0.5),
-        "ks": createVector(0.6, 0.75, 0.8),
-        "km": createVector(0.95, 0.95, 0.95),
-        "phong_exponent": 3000
-    };
-
-    const GREEN_PLASTIC = {
-        "ka": createVector(0.0, 0.8, 0.0),
-        "kd": createVector(0.3, 0.6, 0.2),
-        "ks": createVector(0.95, 0.75, 0.8),
-        "km": createVector(0.05, 0.05, 0.05),
-        "phong_exponent": 75
-    };
-
-    const PURPLE_MATTE = {
-        "ka": createVector(0.3, 0.0, 0.7),
-        "kd": createVector(0.3, 0.0, 0.7),
-        "ks": createVector(0.06, 0.0, 0.14),
-        "km": createVector(0.01, 0.01, 0.01),
-        "phong_exponent": 50
-    }
-
     // reset the canvas
     background(0);
 
@@ -43,16 +48,30 @@ function render() {
     let resolution = select("#resolution-slider").value();
     let cellSize = CANVAS_SIZE / resolution;
 
+    // get lighting
+    let lightingX = select("#lighting-x").value();
+    let lightingY = select("#lighting-y").value();
+    let lightingZ = select("#lighting-z").value();
+    let lighting = createVector(lightingX, lightingY, lightingZ);
+
     // set up the camera
     let distance = select("#distance-slider").value();
-    let mainCamera = new Camera(createVector(0, 0, distance), createVector(1, -1, -1));
+    let mainCamera = new Camera(createVector(0, 0, distance), lighting);
 
-    // hardcode balls for now
-    mainCamera.addBall(new Ball(createVector(0, 0, -5.5), 3, RED_PLASTIC));
-    mainCamera.addBall(new Ball(createVector(5, 1, -7), 2, BLUE_MIRROR));
-    mainCamera.addBall(new Ball(createVector(3, -1.5, -4), 1.5, BLUE_MIRROR));
-    mainCamera.addBall(new Ball(createVector(-3, -1, -3.5), 2, GREEN_PLASTIC));
-    mainCamera.addBall(new Ball(createVector(-3, 2, -8.5), 4, PURPLE_MATTE));
+    // add the balls from the html
+    // use jquery instead of p5 here because p5 includes text nodes
+    let balls = $("#balls").children();
+    balls.each(function() {
+        // get the ball's id and the ball information
+        let i = this.id.substring(5);
+        let centre = createVector($(`#ball-${i}-x`).val(), $(`#ball-${i}-y`).val(), $(`#ball-${i}-z`).val());
+        let radius = $(`#ball-${i}-radius`).val();
+        let colour = getColour($(`#ball-${i}-colour`).val());
+        let material = getMaterial($(`#ball-${i}-material`).val());
+
+        let actualMaterial = {"ka": colour, "kd": colour, ...material};
+        mainCamera.addBall(new Ball(centre, radius, actualMaterial));
+    });
 
     // draw the cell grid, raycast for each grid
     noStroke();

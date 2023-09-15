@@ -1,4 +1,45 @@
-#controls {
+#controls,#balls {
     display: flex;
     flex-direction: column;
+    align-items: center;
+}
+
+.ball-control {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.ball-centre {
+    display: grid;
+    grid-template-columns: 1rem 8rem;
+    margin-right: -3rem;
+}
+
+.ball-radius input {
+    width: 4rem;
+}
+
+#content {
+    display: grid;
+    grid-template-columns: 50% auto;
+}
+
+#canvas-section, #ball-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+@media screen and (width < 800px) {
+    .ball-control {
+        flex-direction: column;
+    }
+
+    #content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 }

@@ -1,5 +1,5 @@
-const VIEWPORT_DISTANCE = 5;  // distance from viewpoint to camera's origin is fixed
-const VIEWPORT_SIZE = 8;
+const VIEWPORT_DISTANCE = 1;  // distance from viewpoint to camera's origin is fixed
+const VIEWPORT_SIZE = 2;
 const MAX_T = 500;  // max parametrization for a ray
 
 // Reflect the incoming vector v about the normal vector n
